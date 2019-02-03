@@ -50,53 +50,81 @@ newReq.addEventListener("load", problemTwo);
 newReq.open("GET", "https://swapi.co/api/people/14");
 newReq.send();
 
-let filmsObj = {};
-let filmList = document.getElementById("filmList");
+// function problem3(data) {
+//   var films = JSON.parse(data.target.responseText);
+//   //   console.log(films.results);
+//   for (var i = 0; i < films.results.length; i++) {
+//     var filmLi = document.createElement("li");
+//     filmLi.className = "film";
+//     filmList.appendChild(filmLi);
+//     var filmVal = document.createElement("h2");
 
-function problem3(data) {
-  var films = JSON.parse(data.target.responseText);
-  console.log(films.results);
-  for (var i = 0; i < films.results.length; i++) {
-    var filmLi = document.createElement("li");
-    filmLi.className = "film";
-    filmList.appendChild(filmLi);
-    var filmVal = document.createElement("h2");
+//     filmVal.innerHTML = films.results[i].title;
+//     filmLi.appendChild(filmVal);
+//     var planetHeader = document.createElement("h3");
+//     planetHeader.innerHTML = "Planets:";
+//     filmLi.appendChild(planetHeader);
+//     var filmPlanets = document.createElement("ul");
+//     filmPlanets.className = "filmPlanets";
+//     filmLi.appendChild(filmPlanets);
 
-    filmVal.innerHTML = films.results[i].title;
-    filmLi.appendChild(filmVal);
-    var planetHeader = document.createElement("h3");
-    planetHeader.innerHTML = "Planets:";
-    filmLi.appendChild(planetHeader);
-    var filmPlanets = document.createElement("ul");
-    filmPlanets.className = "filmPlanets";
-    filmLi.appendChild(filmPlanets);
+// for (var j = 0; j < films.results[i].planets.length; j++) {
+//   //   console.log(films.results[i].planets[j]);
 
-    for (var j = 0; j < films.results[i].planets.length; j++) {
-      console.log(films.results[i].planets[j]);
+//   function getPlanet(data) {
+//     // console.log(planets2.name);
+//     var planets2 = JSON.parse(data.target.responseText);
+//     var planet = document.createElement("li");
+//     planet.className = "planet";
+//     planet.innerHTML = planets2.name;
+//     filmPlanets.appendChild(planet);
+//     // var planetName = document.createElement("h4");
+//     // planetName.className = "planetName";
+//     // planetName.innerHTML = planets2.name;
+//     console.log(planets2.name);
 
-      function getPlanet(data) {
-        var planets2 = JSON.parse(data.target.responseText);
-        // console.log(planets2.name);
+//     // planet.appendChild(planetName);
+//   }
 
-        var planetName = document.createElement("h4");
-        planetName.className = "planetName";
-        planetName.innerHTML = planets2.name;
-        console.log(planets2.name);
-        planet.appendChild(planetName);
-      }
+//   var newPlanetReq = new XMLHttpRequest();
+//   newPlanetReq.addEventListener("load", getPlanet);
+//   newPlanetReq.open("GET", films.results[i].planets[j]);
+//   newPlanetReq.send();
+//     // }
+//   }
+// }
 
-      var newPlanetReq = new XMLHttpRequest();
-      newPlanetReq.addEventListener("load", getPlanet);
-      newPlanetReq.open("GET", films.results[i].planets[j]);
-      newPlanetReq.send();
-      var planet = document.createElement("li");
-      planet.className = "planet";
-      filmPlanets.appendChild(planet);
-    }
-  }
-}
+const request = (url, callback) => {
+  const oReq = new XMLHttpRequest();
+  oReq.addEventListener("load", function(data) {
+    const resData = JSON.parse(data.target.responseText);
+    callback(resData);
+  });
+  oReq.open("GET", url);
+  oReq.send();
+};
 
-let filmReq = new XMLHttpRequest();
-filmReq.addEventListener("load", problem3);
-filmReq.open("GET", "https://swapi.co/api/films/");
-filmReq.send();
+request("https://swapi.co/api/films/", function(data) {
+  console.log(data.results);
+  data.results.forEach(movie => {
+    // console.log(movie.title);
+    let filmList = document.getElementById("filmList");
+    let title = document.createElement("li");
+    title.innerHTML = movie.title;
+    filmList.appendChild(title);
+    // console.log(movie.planets);
+    movie.planets.forEach(planet => {
+      request(planet, function(data) {
+        console.log(data.name);
+        let planetName = document.createElement("ul");
+        planetName.innerHTML = data.name;
+        title.appendChild(planetName);
+      });
+    });
+  });
+});
+
+// let filmReq = new XMLHttpRequest();
+// filmReq.addEventListener("load", problem3);
+// filmReq.open("GET", "https://swapi.co/api/films/");
+// filmReq.send();
